@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLC 그룹 부동산 매각 포털 | SMBL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0d1f3c;
+            --navy-mid: #1a365d;
+            --gold: #c9a84c;
+            --gold-light: #e8c96d;
+            --cream: #faf8f4;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+            background-color: var(--navy);
+            margin: 0;
+        }
+
+        /* ── Password Gate ── */
+        #password-gate {
+            position: fixed; inset: 0; z-index: 1000;
+            background: linear-gradient(135deg, #0d1f3c 0%, #1a3a6b 50%, #0d1f3c 100%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .gate-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(201,168,76,0.3);
+            border-radius: 20px;
+            padding: 3rem 3.5rem;
+            width: 100%; max-width: 420px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        .gate-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem; font-weight: 700;
+            color: var(--gold-light);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.4rem;
+        }
+        .gate-sub { color: rgba(255,255,255,0.5); font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 2.5rem; }
+        .gate-label { display: block; text-align: left; color: rgba(255,255,255,0.6); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .gate-input {
+            width: 100%; padding: 0.85rem 1.2rem;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px; color: #fff; font-size: 1rem;
+            outline: none; transition: border-color 0.2s;
+        }
+        .gate-input:focus { border-color: var(--gold); }
+        .gate-input::placeholder { color: rgba(255,255,255,0.3); }
+        .gate-btn {
+            width: 100%; margin-top: 1.5rem; padding: 0.9rem;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+            color: var(--navy); font-weight: 700; font-size: 0.9rem;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            border: none; border-radius: 10px; cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        .gate-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .gate-error { color: #ff7b7b; font-size: 0.82rem; margin-top: 0.8rem; min-height: 1.2rem; }
+        .gate-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 2rem 0 1.5rem; }
+        .gate-contact { color: rgba(255,255,255,0.4); font-size: 0.75rem; }
+        .gate-contact a { color: var(--gold); text-decoration: none; }
+
+        /* ── Main App ── */
+        #app { display: none; min-height: 100vh; }
+
+        /* ── Top Nav Bar ── */
+        .topbar {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(13,31,60,0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(201,168,76,0.2);
+            padding: 0.9rem 2rem;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .topbar-logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--gold-light); letter-spacing: 0.05em; }
+        .topbar-title { color: rgba(255,255,255,0.7); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+        /* ── Hero ── */
+        .hero {
+            background: linear-gradient(160deg, var(--navy) 0%, #1a3a6b 60%, var(--navy) 100%);
+            padding: 4rem 2rem 3rem;
+            text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 60% 40%, rgba(201,168,76,0.08) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .hero-eyebrow { color: var(--gold); font-size: 0.78rem; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 1rem; }
+        .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; color: #fff; line-height: 1.15; margin-bottom: 1rem; }
+        .hero-title span { color: var(--gold-light); }
+        .hero-sub { color: rgba(255,255,255,0.55); font-size: 1rem; max-width: 520px; margin: 0 auto 2rem; line-height: 1.7; }
+        .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .btn-gold {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.8rem 1.8rem; border-radius: 8px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: var(--navy); font-weight: 700; font-size: 0.9rem;
+            text-decoration: none; transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+        }
+        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(201,168,76,0.45); }
+        .btn-outline {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.8rem 1.8rem; border-radius: 8px;
+            border: 1px solid rgba(201,168,76,0.4); color: var(--gold-light);
+            font-size: 0.9rem; text-decoration: none; transition: border-color 0.2s, background 0.2s;
+        }
+        .btn-outline:hover { border-color: var(--gold); background: rgba(201,168,76,0.08); }
+
+        /* ── Main Content Area ── */
+        .content-area { background: var(--cream); padding: 2.5rem 1.5rem; }
+        @media (min-width: 768px) { .content-area { padding: 3rem 2.5rem; } }
+
+        /* ── Project Navigation Cards ── */
+        .section-label { font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: #999; margin-bottom: 1rem; }
+        #project-navigation { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2.5rem; }
+        @media (min-width: 1024px) { #project-navigation { grid-template-columns: repeat(4, 1fr); } }
+
+        .nav-card {
+            position: relative; overflow: hidden; border-radius: 14px;
+            cursor: pointer; border: 2px solid transparent;
+            transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+            min-height: 160px;
+            background-size: cover; background-position: center;
+        }
+        .nav-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(13,31,60,0.88) 0%, rgba(13,31,60,0.3) 60%, transparent 100%);
+            z-index: 1;
+        }
+        .nav-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.25); }
+        .card-active { border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(201,168,76,0.25), 0 16px 40px rgba(0,0,0,0.3) !important; transform: translateY(-4px); }
+        .nav-card-body { position: absolute; bottom: 0; left: 0; right: 0; padding: 1.2rem; z-index: 2; }
+        .nav-card-tag { display: inline-block; background: rgba(201,168,76,0.9); color: var(--navy); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 4px; margin-bottom: 0.4rem; }
+        .nav-card-name { color: #fff; font-weight: 700; font-size: 1rem; line-height: 1.2; }
+        .nav-card-loc { color: rgba(255,255,255,0.65); font-size: 0.75rem; margin-top: 0.2rem; }
+        .nav-card-price { color: var(--gold-light); font-size: 0.85rem; font-weight: 600; margin-top: 0.3rem; }
+
+        #nav-haLong   { background-image: url('https://raw.githubusercontent.com/smbl1/FLC-Sales_by_SMBL/main/9ea485a6ecfa4fb6ab5245f3c853bc7csg0ZIPqO5Obtu33i-9.png'); }
+        #nav-quyNhon  { background-image: url('https://raw.githubusercontent.com/smbl1/FLC-Sales_by_SMBL/main/9ea485a6ecfa4fb6ab5245f3c853bc7csg0ZIPqO5Obtu33i-25.png'); }
+        #nav-samSon   { background-image: url('https://raw.githubusercontent.com/smbl1/FLC-Sales_by_SMBL/main/9ea485a6ecfa4fb6ab5245f3c853bc7csg0ZIPqO5Obtu33i-48.png'); }
+        #nav-quangBinh{ background-image: url('https://raw.githubusercontent.com/smbl1/FLC-Sales_by_SMBL/main/9ea485a6ecfa4fb6ab5245f3c853bc7csg0ZIPqO5Obtu33i-70.png'); }
+
+        /* ── Detail Panel ── */
+        #project-details {
+            background: #fff; border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .detail-hero {
+            height: 220px; background-size: cover; background-position: center;
+            position: relative;
+        }
+        .detail-hero::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(to right, rgba(13,31,60,0.85) 0%, rgba(13,31,60,0.4) 60%, transparent 100%);
+        }
+        .detail-hero-content { position: absolute; bottom: 2rem; left: 2.5rem; z-index: 2; }
+        .detail-hero-name { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #fff; font-weight: 700; }
+        .detail-hero-loc { color: rgba(255,255,255,0.65); font-size: 0.85rem; margin-top: 0.2rem; }
+
+        .detail-body { padding: 2rem 2.5rem; }
+        .detail-desc { color: #5a6475; font-size: 0.95rem; line-height: 1.8; margin-bottom: 1.8rem; border-left: 3px solid var(--gold); padding-left: 1rem; }
+
+        /* ── Tabs ── */
+        .tab-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; }
+        .asset-tab {
+            padding: 0.55rem 1.2rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+            border: 1.5px solid #e5e7eb; background: #fff; color: #6b7280;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .asset-tab:hover { border-color: var(--navy-mid); color: var(--navy-mid); }
+        .tab-active { background: var(--navy); color: #fff !important; border-color: var(--navy) !important; }
+
+        /* ── Asset Content ── */
+        .asset-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        @media (min-width: 1024px) { .asset-grid { grid-template-columns: 3fr 2fr; } }
+
+        .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 2rem; }
+        @media (min-width: 640px) { .stat-grid { grid-template-columns: repeat(3, 1fr); } }
+        .stat-card {
+            background: #f7f8fc; border: 1px solid #e9ecf3; border-radius: 10px;
+            padding: 0.9rem 1rem;
+        }
+        .stat-label { font-size: 0.72rem; color: #888; text-transform: uppercase; letter-spacing: 0.08em; }
+        .stat-value { font-size: 1rem; font-weight: 700; color: var(--navy); margin-top: 0.25rem; }
+
+        .section-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #888; margin-bottom: 1rem; }
+
+        .price-card {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+            border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;
+            position: relative; overflow: hidden;
+        }
+        .price-card::before {
+            content: ''; position: absolute; top: -40px; right: -40px;
+            width: 140px; height: 140px; border-radius: 50%;
+            background: rgba(201,168,76,0.12);
+        }
+        .price-eyebrow { font-size: 0.7rem; color: rgba(255,255,255,0.5); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.6rem; }
+        .price-vnd { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--gold-light); font-weight: 700; }
+        .price-usd { font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-top: 0.25rem; }
+
+        .legal-list { list-style: none; padding: 0; margin: 0; space-y: 0.5rem; }
+        .legal-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0; border-bottom: 1px solid #f0f0f0; font-size: 0.88rem; color: #444; }
+        .legal-item:last-child { border-bottom: none; }
+        .legal-badge-done { background: #d1fae5; color: #065f46; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 20px; white-space: nowrap; }
+        .legal-badge-pend { background: #fef3c7; color: #92400e; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 20px; white-space: nowrap; }
+
+        .chart-container { position: relative; width: 100%; max-width: 460px; height: 260px; margin: 0 auto; }
+
+        /* ── Footer ── */
+        footer {
+            background: var(--navy);
+            border-top: 1px solid rgba(201,168,76,0.15);
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--gold-light); letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+        .footer-tag { font-size: 0.75rem; color: rgba(255,255,255,0.4); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 1.5rem; }
+        .footer-contact { color: rgba(255,255,255,0.55); font-size: 0.85rem; line-height: 1.9; }
+        .footer-contact a { color: var(--gold); text-decoration: none; }
+
+        /* ── Animation ── */
+        .fade-in { animation: fadeUp 0.4s ease both; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        .no-data-box { background: #f7f8fc; border-radius: 10px; padding: 2.5rem; text-align: center; color: #aaa; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<!-- ─── Password Gate ─────────────────────────────────── -->
+<div id="password-gate">
+    <div class="gate-card">
+        <div class="gate-logo">FLC PORTAL</div>
+        <div class="gate-sub">SMBL Exclusive Access</div>
+        <label class="gate-label" for="pw-input">Access Password</label>
+        <input id="pw-input" class="gate-input" type="password" placeholder="비밀번호를 입력하세요" autocomplete="current-password">
+        <button class="gate-btn" onclick="checkPassword()">입장하기</button>
+        <div id="pw-error" class="gate-error"></div>
+        <hr class="gate-divider">
+        <div class="gate-contact">문의: <a href="mailto:elkyoon@naver.com">elkyoon@naver.com</a> · +84 90 886 8100</div>
+    </div>
+</div>
+
+<!-- ─── Main Application ──────────────────────────────── -->
+<div id="app">
+
+    <!-- Top Navigation Bar -->
+    <div class="topbar">
+        <span class="topbar-logo">FLC PORTAL</span>
+        <span class="topbar-title">SMBL 독점 중개</span>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+        <div class="hero-eyebrow">Vietnam Premium Real Estate · Exclusive Listing</div>
+        <h1 class="hero-title">FLC 그룹 <span>부동산 매각</span> 포털</h1>
+        <p class="hero-sub">베트남 최고 수준의 리조트·골프·호텔 자산을 SMBL이 독점 중개합니다. 검증된 법적 지위와 명확한 재무 지표를 바탕으로 최적의 투자 기회를 제공합니다.</p>
+        <div class="hero-actions">
+            <a href="PROPOSAL FLC TOTAL.pdf" download class="btn-gold">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                제안서 다운로드 (PDF)
+            </a>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content-area">
+
+        <!-- Project Nav -->
+        <div class="section-label">프로젝트 선택</div>
+        <nav id="project-navigation"></nav>
+
+        <!-- Project Detail -->
+        <main id="project-details"></main>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-logo">SMBL COMPANY LIMITED</div>
+        <div class="footer-tag">Exclusive Negotiation Partner · Vietnam</div>
+        <div class="footer-contact">
+            CEO 윤상호 &nbsp;|&nbsp; <a href="tel:+84908868100">+84 90 886 8100</a> &nbsp;|&nbsp; <a href="mailto:elkyoon@naver.com">elkyoon@naver.com</a><br>
+            Keangnam Landmark Tower 19F, Pham Hung, Nam Tu Liem, Ha Noi, Viet Nam
+        </div>
+    </footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // ─── Password ─────────────────────────────────────────────
+    const CORRECT_PASSWORD = "your_secret_password";
+
+    function checkPassword() {
+        const val = document.getElementById('pw-input').value;
+        if (val === CORRECT_PASSWORD) {
+            document.getElementById('password-gate').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            initApp();
+        } else {
+            document.getElementById('pw-error').textContent = '비밀번호가 올바르지 않습니다.';
+            document.getElementById('pw-input').focus();
+        }
+    }
+
+    document.getElementById('pw-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') checkPassword();
+    });
+
+    // ─── Data ─────────────────────────────────────────────────
+    const projectData = {
+        haLong: {
+            name: "FLC HA LONG", location: "Quảng Ninh Province",
+            totalValue: 4800,
+            description: "하롱베이의 탁 트인 전망을 자랑하는 세계적 수준의 리조트 단지입니다. 5성급 호텔, 국제 컨벤션 센터, Schmidt-Curley 설계의 18홀 골프 코스를 포함하며, 비즈니스 및 프리미엄 레저 시장을 모두 포괄합니다.",
+            bgImage: "https://raw.githubusercontent.com/smbl1/FLC-Sales_by_SMBL/main/1.%ED%95%98%EB%A1%B1%EC%83%81%EC%84%B8.PNG",
+            assets: {
+                hotel: {
+                    name: "그랜드 호텔 & 컨벤션 센터", priceVND: 3300, priceUSD: 127.1,
+                    details: [{ label: "객실 수", value: "649개" }, { label: "규모", value: "21층 · 69,277㎡" }, { label: "컨벤션", value: "최대 1,500명" }],
+                    performance: { occupancy: 78, revenue: 300, revenueLabel: "연간 매출 (십억 VND)" },
+                    legal: [{ item: "1/500 상세 계획", status: "Completed" }, { item: "투자 정책 승인", status: "Completed" }, { item: "건설 허가", status: "Completed" }, { item: "사용 승인", status: "Completed" }]
+                },
+                golf: {
+                    name: "골프 링크 & 클럽하우스", priceVND: 1500, priceUSD: 57.8,
+                    details: [{ label: "코스", value: "18홀 / 71파" }, { label: "설계사", value: "Schmidt-Curley" }, { label: "연간 방문객", value: "약 65,000명" }],
+                    performance: { capacity: 82, revenue: 125, revenueLabel: "연간 매출 (십억 VND)" },
+                    legal: [{ item: "1/500 상세 계획", status: "Completed" }, { item: "투자 정책 승인", status: "Completed" }, { item: "토지 임대 결정", status: "Completed" }, { item: "사용 승인", status: "Completed" }]
+                }
+            }
+        },
+        quyNhon: {
+            name: "FLC QUY NHON", location: "Bình Định Province",
+            totalValue: 10200,
+            description: "해안선을 따라 펼쳐진 광대한 복합 리조트입니다. 다양한 등급의 호텔·리조트, Nicklaus·Schmidt-Curley 설계의 36홀 골프 코스, 동물원 등 다채로운 자산으로 구성되어 있습니다.",
+            bgImage: "https://raw.githubusercontent.com/smbl1/FLC-Sales_by_SMBL/main/2.quynhon%EC%83%81%EC%84%B8.PNG",
+            assets: {
+                urbanResort: {
+                    name: "도심 리조트 단지", priceVND: 6700, priceUSD: 258.0,
+                    details: [{ label: "그랜드 호텔", value: "1,043객실" }, { label: "럭셔리 호텔", value: "325객실" }, { label: "럭셔리 빌라", value: "56채" }, { label: "컨벤션", value: "최대 1,500명" }],
+                    performance: { occupancy: 75, revenue: 450, revenueLabel: "리조트 연간 총 매출 (십억 VND)" },
+                    legal: [{ item: "토지사용권 증서 (Red Book)", status: "Completed" }, { item: "1/500 상세 계획", status: "Completed" }]
+                },
+                golf: {
+                    name: "골프 링크 & 아카데미", priceVND: 1200, priceUSD: 46.2,
+                    details: [{ label: "코스", value: "36홀 (Ocean + Mountain)" }, { label: "설계사", value: "Nicklaus, Schmidt-Curley" }, { label: "연간 방문객", value: "약 40,000명" }],
+                    performance: { capacity: 72, revenue: 70, revenueLabel: "연간 매출 (십억 VND)" },
+                    legal: [{ item: "토지사용권 증서 (Red Book)", status: "Completed" }, { item: "1/500 상세 계획", status: "Completed" }]
+                },
+                others: {
+                    name: "기타 자산", priceVND: 4100, priceUSD: 157.9,
+                    details: [{ label: "골프 아카데미 빌라", value: "1,000억 VND" }, { label: "야생 동물 공원", value: "1,500억 VND" }, { label: "식수 공장", value: "800억 VND" }],
+                    performance: null,
+                    legal: [{ item: "골프 아카데미 빌라", status: "In Progress" }, { item: "야생 동물 공원", status: "In Progress" }, { item: "식수 공장", status: "In Progress" }]
+                }
+            }
+        },
+        samSon: {
+            name: "FLC SAM SON", location: "Thanh Hóa Province",
+            totalValue: null,
+            description: "베트남 북부 해안의 대표 휴양지로, 호텔·리조트·골프·컨벤션이 유기적으로 어우러진 복합 단지입니다. 가족 단위 방문객과 골프 애호가 모두에게 사랑받는 성숙한 시장입니다.",
+            bgImage: "https://raw.githubusercontent.com/smbl1/FLC-Sales_by_SMBL/main/3.%EC%82%BC%EC%86%90%EC%83%81%EC%84%B8.PNG",
+            assets: {
+                resortComplex: {
+                    name: "호텔 & 리조트 단지", priceVND: null, priceUSD: null,
+                    details: [{ label: "그랜드 호텔", value: "15층 · 368객실" }, { label: "럭셔리 호텔", value: "7층 · 355객실" }, { label: "럭셔리 빌라", value: "68채" }],
+                    performance: { occupancy: 65, revenue: 320, revenueLabel: "연간 매출 (십억 VND)" },
+                    legal: [{ item: "토지사용권 증서 (Red Book)", status: "Completed" }, { item: "1/500 상세 계획", status: "Completed" }, { item: "투자 정책 승인", status: "Completed" }]
+                },
+                golf: {
+                    name: "골프 링크 & 컨벤션", priceVND: null, priceUSD: null,
+                    details: [{ label: "코스", value: "18홀 / 72파" }, { label: "컨벤션", value: "최대 1,200명" }, { label: "연간 방문객", value: "약 60,000명" }],
+                    performance: { capacity: 80, revenue: 195, revenueLabel: "연간 총 매출 (십억 VND)" },
+                    legal: [{ item: "1/500 상세 계획", status: "Completed" }, { item: "투자 정책 승인", status: "Completed" }, { item: "건설 허가", status: "Completed" }]
+                }
+            }
+        },
+        quangBinh: {
+            name: "FLC QUANG BINH", location: "Quảng Bình Province",
+            totalValue: null,
+            description: "동남아 최대 규모 골프 단지를 목표로 개발 중인 초대형 프로젝트입니다. 54홀 Schmidt-Curley 설계 코스와 561유닛 규모 그랜드 호텔(골조 완료)이 핵심 자산입니다.",
+            bgImage: "https://raw.githubusercontent.com/smbl1/FLC-Sales_by_SMBL/main/4.quangbinh%EC%83%81%EC%84%B8.PNG",
+            assets: {
+                hotel: {
+                    name: "그랜드 호텔", priceVND: null, priceUSD: null,
+                    details: [{ label: "규모", value: "12층 · 561 유닛" }, { label: "현재 상태", value: "골조 공사 완료" }, { label: "기반 시설", value: "주변 완료" }],
+                    performance: null,
+                    legal: [{ item: "토지사용권 증서 (Red Book)", status: "Completed" }, { item: "1/500 상세 계획", status: "Completed" }, { item: "연간 토지 사용료 납부", status: "Completed" }]
+                },
+                golf: {
+                    name: "골프 링크 & 클럽하우스", priceVND: null, priceUSD: null,
+                    details: [{ label: "코스", value: "54홀 (36홀 운영 중)" }, { label: "설계사", value: "Schmidt-Curley" }, { label: "연간 방문객", value: "약 18,000명" }],
+                    performance: { capacity: 0, revenue: 21, revenueLabel: "연간 매출 (십억 VND)" },
+                    legal: [{ item: "1/500 상세 계획", status: "Completed" }, { item: "투자 정책 승인", status: "Completed" }, { item: "산림 사용 목적 변경", status: "In Progress" }]
+                }
+            }
+        }
+    };
+
+    let currentProject = 'haLong';
+    let currentAsset = null;
+    let charts = {};
+
+    function fmtVND(v) { return v ? `${v.toLocaleString('en-US')} 억 VND` : '가격 문의'; }
+    function fmtUSD(v) { return v ? `USD $${v.toFixed(1)}M` : ''; }
+
+    // ─── Render Navigation ────────────────────────────────────
+    function renderNav() {
+        const nav = document.getElementById('project-navigation');
+        nav.innerHTML = Object.entries(projectData).map(([key, p]) => `
+            <div id="nav-${key}" data-key="${key}" class="nav-card ${key === currentProject ? 'card-active' : ''}">
+                <div class="nav-card-body">
+                    <span class="nav-card-tag">${p.location.split(' ')[0]}</span>
+                    <div class="nav-card-name">${p.name}</div>
+                    <div class="nav-card-price">${p.totalValue ? p.totalValue.toLocaleString('en-US') + ' 억+ VND' : '가격 문의'}</div>
+                </div>
+            </div>
+        `).join('');
+        nav.addEventListener('click', e => {
+            const card = e.target.closest('.nav-card');
+            if (!card) return;
+            currentProject = card.dataset.key;
+            document.querySelectorAll('.nav-card').forEach(c => c.classList.remove('card-active'));
+            card.classList.add('card-active');
+            renderDetail();
+        });
+    }
+
+    // ─── Render Project Detail ────────────────────────────────
+    function renderDetail() {
+        const p = projectData[currentProject];
+        currentAsset = Object.keys(p.assets)[0];
+        destroyCharts();
+
+        const tabs = Object.entries(p.assets).map(([k, a]) =>
+            `<button class="asset-tab ${k === currentAsset ? 'tab-active' : ''}" data-key="${k}">${a.name}</button>`
+        ).join('');
+
+        document.getElementById('project-details').innerHTML = `
+            <div class="detail-hero" style="background-image:url('${p.bgImage}')">
+                <div class="detail-hero-content">
+                    <div class="detail-hero-name">${p.name}</div>
+                    <div class="detail-hero-loc">${p.location}</div>
+                </div>
+            </div>
+            <div class="detail-body fade-in">
+                <p class="detail-desc">${p.description}</p>
+                <div class="section-label">자산 선택</div>
+                <div class="tab-row">${tabs}</div>
+                <div id="asset-content"></div>
+            </div>
+        `;
+
+        document.getElementById('project-details').addEventListener('click', e => {
+            const tab = e.target.closest('.asset-tab');
+            if (!tab) return;
+            currentAsset = tab.dataset.key;
+            document.querySelectorAll('.asset-tab').forEach(t => t.classList.remove('tab-active'));
+            tab.classList.add('tab-active');
+            renderAsset();
+        });
+
+        renderAsset();
+    }
+
+    // ─── Render Asset ──────────────────────────────────────────
+    function renderAsset() {
+        destroyCharts();
+        const asset = projectData[currentProject].assets[currentAsset];
+        const container = document.getElementById('asset-content');
+        if (!container) return;
+
+        const statsHTML = asset.details.map(d => `
+            <div class="stat-card">
+                <div class="stat-label">${d.label}</div>
+                <div class="stat-value">${d.value}</div>
+            </div>
+        `).join('');
+
+        const legalHTML = `<ul class="legal-list">${asset.legal.map(l => `
+            <li class="legal-item">
+                <span>${l.item}</span>
+                <span class="${l.status === 'Completed' ? 'legal-badge-done' : 'legal-badge-pend'}" style="margin-left:auto">
+                    ${l.status === 'Completed' ? '완료' : '진행 중'}
+                </span>
+            </li>
+        `).join('')}</ul>`;
+
+        const chartSection = asset.performance ? `
+            <div class="section-label" style="margin-top:1.5rem">사업 실적</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                <div class="chart-container"><canvas id="revenueChart"></canvas></div>
+                <div class="chart-container"><canvas id="occupancyChart"></canvas></div>
+            </div>
+        ` : `<div class="no-data-box">사업 실적 데이터가 제공되지 않았습니다.</div>`;
+
+        container.innerHTML = `
+            <div class="asset-grid fade-in">
+                <div>
+                    <div class="section-label">주요 스펙</div>
+                    <div class="stat-grid">${statsHTML}</div>
+                    ${chartSection}
+                </div>
+                <div>
+                    <div class="section-label">예상 매각 가격</div>
+                    <div class="price-card">
+                        <div class="price-eyebrow">Asking Price</div>
+                        <div class="price-vnd">${fmtVND(asset.priceVND)}</div>
+                        <div class="price-usd">${fmtUSD(asset.priceUSD)}</div>
+                    </div>
+                    <div class="section-label">법적 지위</div>
+                    ${legalHTML}
+                </div>
+            </div>
+        `;
+
+        if (asset.performance) buildCharts(asset.performance);
+    }
+
+    // ─── Charts ────────────────────────────────────────────────
+    function destroyCharts() {
+        Object.values(charts).forEach(c => c.destroy());
+        charts = {};
+    }
+
+    function buildCharts(perf) {
+        const rCtx = document.getElementById('revenueChart')?.getContext('2d');
+        if (rCtx) {
+            charts.revenue = new Chart(rCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['매출'],
+                    datasets: [{ data: [perf.revenue], backgroundColor: 'rgba(26,54,93,0.85)', borderRadius: 6, borderSkipped: false }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, title: { display: true, text: perf.revenueLabel, font: { size: 11 }, color: '#888' } },
+                    scales: { y: { beginAtZero: true, ticks: { callback: v => `${v}억` }, grid: { color: '#f0f0f0' } }, x: { grid: { display: false } } }
+                }
+            });
+        }
+
+        const oCtx = document.getElementById('occupancyChart')?.getContext('2d');
+        if (oCtx) {
+            const rate = perf.occupancy || perf.capacity;
+            const label = perf.occupancy ? '객실 점유율' : '가동률';
+            if (rate > 0) {
+                charts.occupancy = new Chart(oCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: [label, '잔여'],
+                        datasets: [{ data: [rate, 100 - rate], backgroundColor: ['rgba(201,168,76,0.9)', 'rgba(230,232,240,0.6)'], borderWidth: 0 }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, cutout: '65%',
+                        plugins: {
+                            legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } },
+                            title: { display: true, text: label, font: { size: 11 }, color: '#888' },
+                            tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.raw}%` } }
+                        }
+                    }
+                });
+            } else {
+                oCtx.fillStyle = '#ccc'; oCtx.font = "14px 'Noto Sans KR'"; oCtx.textAlign = 'center';
+                oCtx.fillText('데이터 없음', oCtx.canvas.width / 2, oCtx.canvas.height / 2);
+            }
+        }
+    }
+
+    // ─── Init ──────────────────────────────────────────────────
+    function initApp() {
+        renderNav();
+        renderDetail();
+    }
+</script>
+</body>
+</html>
