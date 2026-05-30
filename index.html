@@ -23,55 +23,7 @@
             margin: 0;
         }
 
-        /* ── Password Gate ── */
-        #password-gate {
-            position: fixed; inset: 0; z-index: 1000;
-            background: linear-gradient(135deg, #0d1f3c 0%, #1a3a6b 50%, #0d1f3c 100%);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .gate-card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(201,168,76,0.3);
-            border-radius: 20px;
-            padding: 3rem 3.5rem;
-            width: 100%; max-width: 420px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 40px 80px rgba(0,0,0,0.5);
-            text-align: center;
-        }
-        .gate-logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 2rem; font-weight: 700;
-            color: var(--gold-light);
-            letter-spacing: 0.05em;
-            margin-bottom: 0.4rem;
-        }
-        .gate-sub { color: rgba(255,255,255,0.5); font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 2.5rem; }
-        .gate-label { display: block; text-align: left; color: rgba(255,255,255,0.6); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
-        .gate-input {
-            width: 100%; padding: 0.85rem 1.2rem;
-            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px; color: #fff; font-size: 1rem;
-            outline: none; transition: border-color 0.2s;
-        }
-        .gate-input:focus { border-color: var(--gold); }
-        .gate-input::placeholder { color: rgba(255,255,255,0.3); }
-        .gate-btn {
-            width: 100%; margin-top: 1.5rem; padding: 0.9rem;
-            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
-            color: var(--navy); font-weight: 700; font-size: 0.9rem;
-            letter-spacing: 0.1em; text-transform: uppercase;
-            border: none; border-radius: 10px; cursor: pointer;
-            transition: opacity 0.2s, transform 0.15s;
-        }
-        .gate-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-        .gate-error { color: #ff7b7b; font-size: 0.82rem; margin-top: 0.8rem; min-height: 1.2rem; }
-        .gate-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 2rem 0 1.5rem; }
-        .gate-contact { color: rgba(255,255,255,0.4); font-size: 0.75rem; }
-        .gate-contact a { color: var(--gold); text-decoration: none; }
-
-        /* ── Main App ── */
-        #app { display: none; min-height: 100vh; }
+        #app { min-height: 100vh; }
 
         /* ── Top Nav Bar ── */
         .topbar {
@@ -243,21 +195,7 @@
 </head>
 <body>
 
-<!-- ─── Password Gate ─────────────────────────────────── -->
-<div id="password-gate">
-    <div class="gate-card">
-        <div class="gate-logo">FLC PORTAL</div>
-        <div class="gate-sub">SMBL Exclusive Access</div>
-        <label class="gate-label" for="pw-input">Access Password</label>
-        <input id="pw-input" class="gate-input" type="password" placeholder="비밀번호를 입력하세요" autocomplete="current-password">
-        <button class="gate-btn" onclick="checkPassword()">입장하기</button>
-        <div id="pw-error" class="gate-error"></div>
-        <hr class="gate-divider">
-        <div class="gate-contact">문의: <a href="mailto:elkyoon@naver.com">elkyoon@naver.com</a> · +84 90 886 8100</div>
-    </div>
-</div>
-
-<!-- ─── Main Application ──────────────────────────────── -->
+<!-- Main Application ──────────────────────────────── -->
 <div id="app">
 
     <!-- Top Navigation Bar -->
@@ -305,25 +243,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // ─── Password ─────────────────────────────────────────────
-    const CORRECT_PASSWORD = "your_secret_password";
-
-    function checkPassword() {
-        const val = document.getElementById('pw-input').value;
-        if (val === CORRECT_PASSWORD) {
-            document.getElementById('password-gate').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-            initApp();
-        } else {
-            document.getElementById('pw-error').textContent = '비밀번호가 올바르지 않습니다.';
-            document.getElementById('pw-input').focus();
-        }
-    }
-
-    document.getElementById('pw-input').addEventListener('keydown', e => {
-        if (e.key === 'Enter') checkPassword();
-    });
-
     // ─── Data ─────────────────────────────────────────────────
     const projectData = {
         haLong: {
@@ -589,6 +508,8 @@
         renderNav();
         renderDetail();
     }
+
+    document.addEventListener('DOMContentLoaded', initApp);
 </script>
 </body>
 </html>
